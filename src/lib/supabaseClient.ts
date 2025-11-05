@@ -11,19 +11,46 @@ declare global {
 
 type EnvRecord = Record<string, string | undefined>;
 
-const env = import.meta.env as EnvRecord;
+const getImportMetaEnv = (): EnvRecord => {
+  try {
+    return (import.meta.env ?? {}) as EnvRecord;
+  } catch {
+    return {};
+  }
+};
+
+const getProcessEnv = (): EnvRecord => {
+  const globalProcess = (globalThis as { process?: { env?: EnvRecord } }).process;
+  return globalProcess?.env ?? {};
+};
+
+const normalize = (value: string | undefined): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+};
 
 const readEnv = (keys: string[]): string | undefined => {
-  for (const key of keys) {
-    const value = env[key];
-    if (value) return value;
+  const sources: EnvRecord[] = [getImportMetaEnv(), getProcessEnv()];
+
+  for (const source of sources) {
+    if (!source) continue;
+    for (const key of keys) {
+      const match = normalize(source[key]);
+      if (match) return match;
+    }
   }
 
   if (typeof window !== 'undefined' && window.__SUPABASE__) {
+    const { url, anonKey } = window.__SUPABASE__;
     for (const key of keys) {
-      const value = window.__SUPABASE__[key as keyof typeof window.__SUPABASE__];
-      if (typeof value === 'string' && value.length > 0) {
-        return value;
+      if (key.toLowerCase().includes('url')) {
+        const match = normalize(url);
+        if (match) return match;
+      }
+      if (key.toLowerCase().includes('anon')) {
+        const match = normalize(anonKey);
+        if (match) return match;
       }
     }
   }
@@ -31,31 +58,53 @@ const readEnv = (keys: string[]): string | undefined => {
   return undefined;
 };
 
-const supabaseUrl =
-  readEnv(['VITE_SUPABASE_URL', 'PUBLIC_SUPABASE_URL', 'SUPABASE_URL']) ?? '';
-const supabaseAnonKey =
-  readEnv(['VITE_SUPABASE_ANON_KEY', 'PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_ANON_KEY']) ?? '';
+interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+}
 
+let cachedConfig: SupabaseConfig | null = null;
 let client: SupabaseClient | null = null;
 
-export const isSupabaseConfigured = () =>
-  Boolean(supabaseUrl && supabaseAnonKey);
+const resolveConfig = (): SupabaseConfig | null => {
+  const url =
+    readEnv(['VITE_SUPABASE_URL', 'PUBLIC_SUPABASE_URL', 'SUPABASE_URL']) ?? '';
+  const anonKey =
+    readEnv(['VITE_SUPABASE_ANON_KEY', 'PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_ANON_KEY']) ?? '';
+
+  if (!url || !anonKey) return null;
+  return { url, anonKey };
+};
+
+export const isSupabaseConfigured = () => Boolean(resolveConfig());
 
 export const getSupabaseClient = (): SupabaseClient | null => {
-  if (!isSupabaseConfigured()) return null;
-  if (!client) {
-    client = createClient(supabaseUrl, supabaseAnonKey, {
+  const config = resolveConfig();
+  if (!config) return null;
+
+  const hasChanged =
+    !cachedConfig ||
+    cachedConfig.url !== config.url ||
+    cachedConfig.anonKey !== config.anonKey;
+
+  if (!client || hasChanged) {
+    client = createClient(config.url, config.anonKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
       },
     });
+    cachedConfig = config;
   }
+
   return client;
 };
 
-export const getSupabaseConfigSummary = () => ({
-  url: supabaseUrl,
-  anonKey: supabaseAnonKey ? '****' : '',
-  isConfigured: isSupabaseConfigured(),
-});
+export const getSupabaseConfigSummary = () => {
+  const config = resolveConfig();
+  return {
+    url: config?.url ?? '',
+    anonKey: config?.anonKey ? '****' : '',
+    isConfigured: Boolean(config),
+  };
+};
