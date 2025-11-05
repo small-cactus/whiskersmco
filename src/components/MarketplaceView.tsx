@@ -114,7 +114,7 @@ export function MarketplaceView() {
       </div>
       <header className="marketplace__hero">
         <div className="marketplace__hero-content">
-          <span className="marketplace__eyebrow">Raised underfoot since 2012</span>
+          <span className="marketplace__eyebrow">Raised and cared for everyday</span>
           <div className="marketplace__hero-title">
             <h1>Snuggle-ready Maine Coons searching for their forever families.</h1>
           </div>
