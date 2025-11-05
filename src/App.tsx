@@ -112,7 +112,7 @@ function AppShell() {
           <span className="app-intro__sync">
             {usingSupabase
               ? 'Listings update the moment we tuck in new photos.'
-              : 'Demo mode – add SUPABASE_URL and SUPABASE_ANON_KEY to keep families in sync.'}
+              : 'Demo mode – add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Vercel project to keep families in sync.'}
           </span>
         </div>
 

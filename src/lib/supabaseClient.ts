@@ -68,9 +68,19 @@ let client: SupabaseClient | null = null;
 
 const resolveConfig = (): SupabaseConfig | null => {
   const url =
-    readEnv(['VITE_SUPABASE_URL', 'PUBLIC_SUPABASE_URL', 'SUPABASE_URL']) ?? '';
+    readEnv([
+      'VITE_SUPABASE_URL',
+      'NEXT_PUBLIC_SUPABASE_URL',
+      'PUBLIC_SUPABASE_URL',
+      'SUPABASE_URL',
+    ]) ?? '';
   const anonKey =
-    readEnv(['VITE_SUPABASE_ANON_KEY', 'PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_ANON_KEY']) ?? '';
+    readEnv([
+      'VITE_SUPABASE_ANON_KEY',
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      'PUBLIC_SUPABASE_ANON_KEY',
+      'SUPABASE_ANON_KEY',
+    ]) ?? '';
 
   if (!url || !anonKey) return null;
   return { url, anonKey };
