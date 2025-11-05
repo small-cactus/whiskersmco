@@ -1,0 +1,28 @@
+{
+  "name": "Whiskers & Co.",
+  "short_name": "Whiskers",
+  "description": "Whiskers & Co. connects families with lovingly raised Maine Coon kittens.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff7f0",
+  "theme_color": "#e05273",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

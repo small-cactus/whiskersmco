@@ -68,17 +68,17 @@ export function KittenCard({
           <span className="kitten-card__price">
             {formatCurrency(kitten.price)}
           </span>
-          <span className="kitten-card__deposit">
-            Reserve with {formatCurrency(kitten.depositAmount)}
-          </span>
+          <div className="kitten-card__pricing-meta">
+            <span className="kitten-card__deposit">
+              Deposit {formatCurrency(kitten.depositAmount)}
+            </span>
+            <span className="kitten-card__bid">
+              {highestBid
+                ? `Top bid ${formatCurrency(highestBid)}`
+                : 'No bids yet'}
+            </span>
+          </div>
         </div>
-        {highestBid ? (
-          <p className="kitten-card__bid">
-            Top bid <strong>{formatCurrency(highestBid)}</strong>
-          </p>
-        ) : (
-          <p className="kitten-card__bid">Be the first to place a bid</p>
-        )}
       </div>
       <footer className="kitten-card__actions">
         <button

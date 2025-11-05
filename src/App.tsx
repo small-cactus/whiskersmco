@@ -14,7 +14,6 @@ declare global {
 
 function AppShell() {
   const [view, setView] = useState<View>('marketplace');
-  const [showDevHint, setShowDevHint] = useState<boolean>(() => import.meta.env.DEV);
   const { usingSupabase } = useKittenContext();
 
   useEffect(() => {
@@ -42,7 +41,6 @@ function AppShell() {
         setView((previous) =>
           previous === 'admin' ? 'marketplace' : 'admin',
         );
-        setShowDevHint(false);
       }
     };
 
@@ -111,17 +109,10 @@ function AppShell() {
           <p>{viewCopy}</p>
           <span className="app-intro__sync">
             {usingSupabase
-              ? 'Listings update the moment we tuck in new photos.'
-              : 'Demo mode – add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Vercel project to keep families in sync.'}
+              ? 'Listings refresh the moment we publish new photos.'
+              : 'Demo data is shown for preview — connect Supabase to sync automatically.'}
           </span>
         </div>
-
-        {import.meta.env.DEV && showDevHint ? (
-          <p className="dev-hint">
-            Developer hint: press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd> to
-            toggle breeder tools.
-          </p>
-        ) : null}
 
         {view === 'admin' ? (
           <>
@@ -145,11 +136,6 @@ function AppShell() {
       <footer className="app-footer">
         <span>© {new Date().getFullYear()} Whiskers & Co. All rights reserved.</span>
         <span>Licensed TICA breeder · Portland, Maine</span>
-        {import.meta.env.DEV ? (
-          <span className="app-footer__hint">
-            Dev shortcut: Ctrl+Shift+A toggles the breeder dashboard.
-          </span>
-        ) : null}
       </footer>
     </div>
   );
