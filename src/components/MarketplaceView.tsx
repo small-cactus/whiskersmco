@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { KittenCard } from './KittenCard';
 import kittensInBasket from '../assets/kittens_in_basket.png';
 import { KittenDetailSheet } from './KittenDetailSheet';
@@ -47,6 +47,16 @@ export function MarketplaceView() {
     [kittens],
   );
 
+  const firstKitten = useMemo(() => {
+    if (featured[0]) return featured[0];
+    if (available[0]) return available[0];
+    if (reserved[0]) return reserved[0];
+    if (sold[0]) return sold[0];
+    return null;
+  }, [featured, available, reserved, sold]);
+
+  const firstKittenId = firstKitten?.id ?? null;
+
   const handleAddBid = (
     kittenId: string,
     payload: { bidderName: string; amount: number; message?: string },
@@ -89,6 +99,14 @@ export function MarketplaceView() {
     ? 'Listings update instantly when we refresh the breeder dashboard.'
     : 'Demo data is showing for now — connect your Supabase project to sync automatically.';
 
+  const scrollToFirstKitten = useCallback(() => {
+    if (!firstKittenId) return;
+    const target = document.querySelector<HTMLElement>('[data-first-kitten="true"]');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [firstKittenId]);
+
   return (
     <div className="marketplace" id="available-kittens">
       <div className="marketplace__hero-figure" aria-hidden="true">
@@ -112,17 +130,7 @@ export function MarketplaceView() {
             <button
               type="button"
               className="btn-primary"
-              onClick={() => {
-                if (featured[0]) {
-                  setSelected(featured[0]);
-                } else if (available[0]) {
-                  setSelected(available[0]);
-                } else if (reserved[0]) {
-                  setSelected(reserved[0]);
-                } else if (sold[0]) {
-                  setSelected(sold[0]);
-                }
-              }}
+              onClick={scrollToFirstKitten}
             >
               Meet the kittens
             </button>
@@ -171,6 +179,7 @@ export function MarketplaceView() {
               kitten={kitten}
               onViewDetails={setSelected}
               onCheckout={handleCheckout}
+              isHeroAnchor={kitten.id === firstKittenId}
             />
           ))}
           {!loading && featured.length + available.length === 0 ? (
@@ -197,6 +206,7 @@ export function MarketplaceView() {
                 kitten={kitten}
                 onViewDetails={setSelected}
                 onCheckout={handleCheckout}
+                isHeroAnchor={kitten.id === firstKittenId}
               />
             ))}
           </div>
@@ -216,6 +226,7 @@ export function MarketplaceView() {
                 kitten={kitten}
                 onViewDetails={setSelected}
                 onCheckout={handleCheckout}
+                isHeroAnchor={kitten.id === firstKittenId}
               />
             ))}
           </div>

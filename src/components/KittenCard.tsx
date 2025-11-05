@@ -5,6 +5,7 @@ interface KittenCardProps {
   kitten: Kitten;
   onViewDetails: (kitten: Kitten) => void;
   onCheckout: (kitten: Kitten, action: CheckoutActionType) => void;
+  isHeroAnchor?: boolean;
 }
 
 const statusCopy: Record<Kitten['status'], string> = {
@@ -17,6 +18,7 @@ export function KittenCard({
   kitten,
   onViewDetails,
   onCheckout,
+  isHeroAnchor = false,
 }: KittenCardProps) {
   const highestBid = kitten.bids[0]?.amount ?? null;
 
@@ -24,7 +26,11 @@ export function KittenCard({
   const isReserved = kitten.status === 'reserved';
 
   return (
-    <article className="kitten-card" aria-label={`${kitten.name} profile`}>
+    <article
+      className="kitten-card"
+      aria-label={`${kitten.name} profile`}
+      data-first-kitten={isHeroAnchor ? 'true' : undefined}
+    >
       <button
         type="button"
         className="kitten-card__media"

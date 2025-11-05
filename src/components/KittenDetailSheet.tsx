@@ -39,6 +39,7 @@ export function KittenDetailSheet({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmittingBid, setIsSubmittingBid] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setBidderName('');
@@ -47,6 +48,12 @@ export function KittenDetailSheet({
     setFeedback(null);
     setIsSubmittingBid(false);
     setError(null);
+  }, [kitten.id]);
+
+  useEffect(() => {
+    setIsVisible(false);
+    const frame = window.requestAnimationFrame(() => setIsVisible(true));
+    return () => window.cancelAnimationFrame(frame);
   }, [kitten.id]);
 
   const highestBid = useMemo(
@@ -95,7 +102,11 @@ export function KittenDetailSheet({
   const isSold = kitten.status === 'sold';
 
   return (
-    <div className="kitten-sheet" role="dialog" aria-modal="true">
+    <div
+      className={`kitten-sheet${isVisible ? ' is-visible' : ''}`}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="kitten-sheet__backdrop" onClick={onClose} />
       <section className="kitten-sheet__panel">
         <header className="kitten-sheet__header">
