@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { KittenCard } from './KittenCard';
+import kittensInBasket from '../assets/kittens_in_basket.png';
 import { KittenDetailSheet } from './KittenDetailSheet';
 import { useKittenContext } from '../context/KittenContext';
 import type { CheckoutActionType, Kitten } from '../types';
@@ -85,21 +86,29 @@ export function MarketplaceView() {
   };
 
   const syncMessage = usingSupabase
-    ? 'Listings update instantly when saved in the breeder dashboard.'
-    : 'Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your hosting environment to sync listings across devices.';
+    ? 'Listings update instantly when we refresh the breeder dashboard.'
+    : 'Demo data is showing for now — connect your Supabase project to sync automatically.';
 
   return (
     <div className="marketplace" id="available-kittens">
+      <div className="marketplace__hero-figure" aria-hidden="true">
+        <img className="marketplace__hero-image" src={kittensInBasket} alt="" />
+      </div>
       <header className="marketplace__hero">
         <div className="marketplace__hero-content">
           <span className="marketplace__eyebrow">Raised underfoot since 2012</span>
-          <h1>Snuggle-ready Maine Coons searching for their forever families.</h1>
+          <div className="marketplace__hero-title">
+            <h1>Snuggle-ready Maine Coons searching for their forever families.</h1>
+          </div>
           <p>
             Each kitten grows up in our sunny nursery with children, soft blankets, and
             daily cuddles. We guide you through every milestone so homecoming is joyful
             for both kitten and family.
           </p>
           <div className="marketplace__hero-actions">
+            <a className="marketplace__hero-link" href="tel:2075550186">
+              Call us to chat
+            </a>
             <button
               type="button"
               className="btn-primary"
@@ -117,9 +126,6 @@ export function MarketplaceView() {
             >
               Meet the kittens
             </button>
-            <a className="marketplace__hero-link" href="tel:2075550186">
-              Call us to chat
-            </a>
           </div>
         </div>
         <div className="marketplace__hero-illustration" aria-hidden="true">
@@ -153,7 +159,7 @@ export function MarketplaceView() {
         <div className="marketplace__loading">Loading kittens…</div>
       ) : null}
 
-      <section className="marketplace__section marketplace__section--available">
+      <section className="marketplace__section marketplace__section--available" data-simple>
         <div className="marketplace__section-head">
           <h2>Available now</h2>
           <p>{copyForStatus.available}</p>

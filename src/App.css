@@ -379,6 +379,7 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   color: var(--accent-hover);
+  font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
   box-shadow: var(--shadow-inner);

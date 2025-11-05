@@ -135,7 +135,7 @@ function AppShell() {
 
       <footer className="app-footer">
         <span>© {new Date().getFullYear()} Whiskers & Co. All rights reserved.</span>
-        <span>Licensed TICA breeder · Portland, Maine</span>
+        <span>Licensed TICA breeder · Tampa, Florida</span>
       </footer>
     </div>
   );

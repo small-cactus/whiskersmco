@@ -86,7 +86,7 @@ export function KittenCard({
           className="btn-outline"
           onClick={() => onViewDetails(kitten)}
         >
-          Details
+          View more
         </button>
         <button
           type="button"

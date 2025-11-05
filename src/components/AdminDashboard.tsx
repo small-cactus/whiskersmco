@@ -29,13 +29,72 @@ const defaultDraft = (): KittenDraft => ({
 
 const statusOrder: KittenStatus[] = ['available', 'reserved', 'sold'];
 
-async function fileToDataUrl(file: File): Promise<string> {
+const MAX_IMAGE_DIMENSION = 1280;
+
+async function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+}
+
+async function fileToOptimizedDataUrl(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) {
+    return readFileAsDataUrl(file);
+  }
+
+  const originalDataUrl = await readFileAsDataUrl(file);
+
+  if (typeof window === 'undefined') {
+    return originalDataUrl;
+  }
+
+  const imageElement = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = originalDataUrl;
+  }).catch(() => null);
+
+  if (!imageElement) {
+    return originalDataUrl;
+  }
+
+  const largestSide = Math.max(imageElement.width, imageElement.height);
+  const scale =
+    largestSide > MAX_IMAGE_DIMENSION
+      ? MAX_IMAGE_DIMENSION / largestSide
+      : 1;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(imageElement.width * scale));
+  canvas.height = Math.max(1, Math.round(imageElement.height * scale));
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return originalDataUrl;
+  }
+
+  context.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+
+  try {
+    const webp = canvas.toDataURL('image/webp', 0.72);
+    if (webp && webp.length < originalDataUrl.length) {
+      return webp;
+    }
+
+    const jpeg = canvas.toDataURL('image/jpeg', 0.72);
+    if (jpeg && jpeg.length < originalDataUrl.length) {
+      return jpeg;
+    }
+  } catch {
+    // Fall back to original data URL
+  }
+
+  return originalDataUrl;
 }
 
 export function AdminDashboard() {
@@ -94,7 +153,9 @@ export function AdminDashboard() {
     if (!files || files.length === 0) return;
     setIsUploading(true);
     try {
-      const images = await Promise.all(Array.from(files).map(fileToDataUrl));
+      const images = await Promise.all(
+        Array.from(files).map(fileToOptimizedDataUrl),
+      );
       setDraft((previous) => ({
         ...previous,
         gallery: [...previous.gallery, ...images],
