@@ -78,28 +78,41 @@ function AppShell() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="app-header__brand">
-          <div className="app-header__mark" aria-hidden="true">
-            <span>🐾</span>
+        <div className="app-header__inner">
+          <div className="app-header__brand">
+            <div className="app-header__mark" aria-hidden="true">
+              <span>🐾</span>
+            </div>
+            <div className="app-header__title">
+              <strong>Whiskers & Co.</strong>
+              <span>Maine Coon Adoption</span>
+            </div>
           </div>
-          <div className="app-header__title">
-            <strong>Whiskers & Co.</strong>
-            <span>Maine Coon Adoption</span>
+          <div className="app-header__details">
+            <p className="app-header__tagline">
+              Family-raised kittens with velvet paws and gentle hearts.
+            </p>
+            <div className="app-header__contact">
+              <div className="app-header__contact-info">
+                <span className="app-header__contact-label">Call or text</span>
+                <a href="tel:2075550186">207-555-0186</a>
+                <span className="app-header__hours">Daily 9am–7pm ET</span>
+              </div>
+              <a className="app-header__cta" href="#available-kittens">
+                Plan a visit
+              </a>
+            </div>
           </div>
-        </div>
-        <div className="app-header__contact">
-          <span>Call or text:</span>
-          <a href="tel:2075550186">207-555-0186</a>
         </div>
       </header>
 
-      <main>
-        <div className="view-subheading">
+      <main className="app-main">
+        <div className="app-intro">
           <p>{viewCopy}</p>
-          <span className="view-subheading__sync">
+          <span className="app-intro__sync">
             {usingSupabase
-              ? 'Live updates powered by Supabase'
-              : 'Demo mode – add SUPABASE_URL and SUPABASE_ANON_KEY to sync'}
+              ? 'Listings update the moment we tuck in new photos.'
+              : 'Demo mode – add SUPABASE_URL and SUPABASE_ANON_KEY to keep families in sync.'}
           </span>
         </div>
 

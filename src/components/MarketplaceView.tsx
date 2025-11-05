@@ -89,35 +89,48 @@ export function MarketplaceView() {
     : 'Connect Supabase to keep listings synced across devices.';
 
   return (
-    <div className="marketplace">
+    <div className="marketplace" id="available-kittens">
       <header className="marketplace__hero">
-        <span className="marketplace__eyebrow">Family-raised kittens</span>
-        <h1>Every Maine Coon leaves ready to join your home.</h1>
-        <p>
-          We focus on gentle temperaments, socialization, and honest updates.
-          Ask questions, place a bid, or reserve right away — we help at every step.
-        </p>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => {
-            if (featured[0]) {
-              setSelected(featured[0]);
-            } else if (available[0]) {
-              setSelected(available[0]);
-            } else if (reserved[0]) {
-              setSelected(reserved[0]);
-            } else if (sold[0]) {
-              setSelected(sold[0]);
-            }
-          }}
-        >
-          Meet the kittens
-        </button>
+        <div className="marketplace__hero-content">
+          <span className="marketplace__eyebrow">Raised underfoot since 2012</span>
+          <h1>Snuggle-ready Maine Coons searching for their forever families.</h1>
+          <p>
+            Each kitten grows up in our sunny nursery with children, soft blankets, and
+            daily cuddles. We guide you through every milestone so homecoming is joyful
+            for both kitten and family.
+          </p>
+          <div className="marketplace__hero-actions">
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                if (featured[0]) {
+                  setSelected(featured[0]);
+                } else if (available[0]) {
+                  setSelected(available[0]);
+                } else if (reserved[0]) {
+                  setSelected(reserved[0]);
+                } else if (sold[0]) {
+                  setSelected(sold[0]);
+                }
+              }}
+            >
+              Meet the kittens
+            </button>
+            <a className="marketplace__hero-link" href="tel:2075550186">
+              Call us to chat
+            </a>
+          </div>
+        </div>
+        <div className="marketplace__hero-illustration" aria-hidden="true">
+          <div className="marketplace__hero-paw" />
+          <div className="marketplace__hero-sparkle marketplace__hero-sparkle--one" />
+          <div className="marketplace__hero-sparkle marketplace__hero-sparkle--two" />
+        </div>
       </header>
 
       {showInfo ? (
-        <div className="marketplace__info">
+        <div className="marketplace__notice">
           <p>{syncMessage}</p>
           <button type="button" onClick={() => setShowInfo(false)}>
             Got it
@@ -140,7 +153,7 @@ export function MarketplaceView() {
         <div className="marketplace__loading">Loading kittens…</div>
       ) : null}
 
-      <section className="marketplace__section">
+      <section className="marketplace__section marketplace__section--available">
         <div className="marketplace__section-head">
           <h2>Available now</h2>
           <p>{copyForStatus.available}</p>
@@ -166,7 +179,7 @@ export function MarketplaceView() {
       </section>
 
       {reserved.length > 0 ? (
-        <section className="marketplace__section">
+        <section className="marketplace__section marketplace__section--reserved">
           <div className="marketplace__section-head">
             <h2>Reserved</h2>
             <p>{copyForStatus.reserved}</p>
@@ -185,7 +198,7 @@ export function MarketplaceView() {
       ) : null}
 
       {sold.length > 0 ? (
-        <section className="marketplace__section">
+        <section className="marketplace__section marketplace__section--adopted">
           <div className="marketplace__section-head">
             <h2>Recently adopted</h2>
             <p>{copyForStatus.sold}</p>
@@ -203,16 +216,30 @@ export function MarketplaceView() {
         </section>
       ) : null}
 
-      <section className="marketplace__cta">
-        <h2>How adoption works</h2>
-        <ol>
-          <li>Ask questions and schedule a video meet-and-greet.</li>
-          <li>Place a bid or reserve with a refundable deposit.</li>
-          <li>Receive weekly updates until homecoming day.</li>
-        </ol>
-        <p>
-          Ready to chat? Leave a bid with a note or call us anytime — we answer within
-          the same day.
+      <section className="marketplace__journey">
+        <div className="marketplace__journey-head">
+          <h2>Your adoption journey</h2>
+          <p>Warm hearts, gentle paws, and guidance from the first hello to homecoming.</p>
+        </div>
+        <div className="marketplace__journey-steps">
+          <div>
+            <span className="marketplace__journey-number">1</span>
+            <h3>Say hello</h3>
+            <p>Share your family story, ask questions, and schedule a virtual visit.</p>
+          </div>
+          <div>
+            <span className="marketplace__journey-number">2</span>
+            <h3>Reserve your kitten</h3>
+            <p>Place a refundable deposit or bid confidently — we hold your match.</p>
+          </div>
+          <div>
+            <span className="marketplace__journey-number">3</span>
+            <h3>Prepare for cuddle day</h3>
+            <p>Receive weekly updates, vet records, and a take-home guide for a smooth arrival.</p>
+          </div>
+        </div>
+        <p className="marketplace__journey-footnote">
+          Ready to chat? Leave a bid with a note or call us anytime — we respond within the day.
         </p>
       </section>
 
