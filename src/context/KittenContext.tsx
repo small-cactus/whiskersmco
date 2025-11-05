@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { seedKittens } from '../data/seed';
+import type { PostgrestError } from '@supabase/supabase-js';
 import type { Bid, Kitten, KittenDraft, KittenStatus } from '../types';
 import { getSupabaseClient } from '../lib/supabaseClient';
 
@@ -109,6 +110,17 @@ const normalizeKitten = (kitten: Partial<Kitten>): Kitten => {
   };
 };
 
+const isMissingTableError = (error: PostgrestError | null): boolean => {
+  if (!error) return false;
+  if (error.code === '42P01' || error.code === 'PGRST201') return true;
+  const message = error.message?.toLowerCase() ?? '';
+  return (
+    message.includes('could not find the table') ||
+    message.includes('does not exist') ||
+    message.includes('schema cache')
+  );
+};
+
 interface KittenContextValue {
   kittens: Kitten[];
   loading: boolean;
@@ -128,7 +140,7 @@ const KittenContext = createContext<KittenContextValue | undefined>(undefined);
 
 export function KittenProvider({ children }: { children: ReactNode }) {
   const [supabase, setSupabase] = useState(() => getSupabaseClient());
-  const usingSupabase = Boolean(supabase);
+  const [supabaseHealthy, setSupabaseHealthy] = useState(false);
 
   useEffect(() => {
     if (supabase) return;
@@ -167,34 +179,46 @@ export function KittenProvider({ children }: { children: ReactNode }) {
 
   const loadKittens = useCallback(async () => {
     setLoading(true);
-    if (supabase && usingSupabase) {
+    if (supabase) {
       const { data, error: fetchError } = await supabase
         .from('kittens')
         .select('*, bids(*)')
         .order('createdAt', { ascending: false });
 
       if (fetchError) {
-        setError(fetchError.message);
-        setKittens([]);
+        if (isMissingTableError(fetchError)) {
+          setError(
+            'Supabase table "kittens" is missing. Apply the schema migration (see README) then refresh. Showing demo kittens meanwhile.',
+          );
+          setSupabaseHealthy(false);
+          setKittens(seedKittens.map((kitten) => normalizeKitten(kitten)));
+        } else {
+          setError(fetchError.message);
+          setSupabaseHealthy(false);
+          setKittens([]);
+        }
       } else if (Array.isArray(data)) {
         setError(null);
+        setSupabaseHealthy(true);
         setKittens(data.map((item) => normalizeKitten(item)));
       } else {
+        setSupabaseHealthy(true);
         setKittens([]);
       }
     } else {
       setError(null);
+      setSupabaseHealthy(false);
       setKittens(seedKittens.map((kitten) => normalizeKitten(kitten)));
     }
     setLoading(false);
-  }, [supabase, usingSupabase]);
+  }, [supabase]);
 
   useEffect(() => {
     loadKittens();
   }, [loadKittens]);
 
   useEffect(() => {
-    if (!supabase || !usingSupabase) return;
+    if (!supabase || !supabaseHealthy) return;
 
     const channel = supabase
       .channel('kittens-listener')
@@ -217,13 +241,13 @@ export function KittenProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, usingSupabase, loadKittens]);
+  }, [supabase, supabaseHealthy, loadKittens]);
 
   const saveKitten = useCallback(
     async (draft: KittenDraft): Promise<Kitten> => {
       const timestamp = nowIso();
 
-      if (supabase && usingSupabase) {
+      if (supabase && supabaseHealthy) {
         const baseId = draft.id ?? createLocalId(draft.name);
         const payload = {
           id: baseId,
@@ -292,12 +316,12 @@ export function KittenProvider({ children }: { children: ReactNode }) {
 
       return kitten;
     },
-    [kittens, supabase, usingSupabase],
+    [kittens, supabase, supabaseHealthy],
   );
 
   const removeKitten = useCallback(
     async (kittenId: string) => {
-      if (supabase && usingSupabase) {
+      if (supabase && supabaseHealthy) {
         const { error: deleteError } = await supabase
           .from('kittens')
           .delete()
@@ -312,7 +336,7 @@ export function KittenProvider({ children }: { children: ReactNode }) {
         previous.filter((kitten) => kitten.id !== kittenId),
       );
     },
-    [supabase, usingSupabase],
+    [supabase, supabaseHealthy],
   );
 
   const addBid = useCallback(
@@ -345,7 +369,7 @@ export function KittenProvider({ children }: { children: ReactNode }) {
         placedAt: nowIso(),
       };
 
-      if (supabase && usingSupabase) {
+      if (supabase && supabaseHealthy) {
         const { data, error: insertError } = await supabase
           .from('bids')
           .insert(bidPayload)
@@ -390,12 +414,12 @@ export function KittenProvider({ children }: { children: ReactNode }) {
 
       return { ok: true };
     },
-    [kittens, supabase, usingSupabase],
+    [kittens, supabase, supabaseHealthy],
   );
 
   const setKittenStatus = useCallback(
     async (kittenId: string, status: KittenStatus) => {
-      if (supabase && usingSupabase) {
+      if (supabase && supabaseHealthy) {
         const { data, error: updateError } = await supabase
           .from('kittens')
           .update({ status, updatedAt: nowIso() })
@@ -424,7 +448,7 @@ export function KittenProvider({ children }: { children: ReactNode }) {
         ),
       );
     },
-    [supabase, usingSupabase],
+    [supabase, supabaseHealthy],
   );
 
   const value = useMemo<KittenContextValue>(
@@ -432,7 +456,7 @@ export function KittenProvider({ children }: { children: ReactNode }) {
       kittens,
       loading,
       error,
-      usingSupabase,
+      usingSupabase: supabaseHealthy,
       refresh: loadKittens,
       saveKitten,
       removeKitten,
@@ -443,7 +467,7 @@ export function KittenProvider({ children }: { children: ReactNode }) {
       kittens,
       loading,
       error,
-      usingSupabase,
+      supabaseHealthy,
       loadKittens,
       saveKitten,
       removeKitten,
