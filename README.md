@@ -29,46 +29,14 @@ VITE_SUPABASE_URL        // or SUPABASE_URL
 VITE_SUPABASE_ANON_KEY   // or SUPABASE_ANON_KEY
 ```
 
-Tables (JSON columns use `text[]` or `jsonb` depending on preference):
+### Create the tables
 
-```sql
-create table public.kittens (
-  id text primary key,
-  name text not null,
-  tagline text,
-  birthdate text,
-  gender text,
-  color text,
-  weightLbs numeric,
-  description text,
-  traits jsonb default '[]'::jsonb,
-  groomingNeeds text,
-  healthNotes text,
-  price numeric,
-  depositAmount numeric,
-  depositCheckoutUrl text,
-  buyNowCheckoutUrl text,
-  status text default 'available',
-  heroImage text,
-  gallery jsonb default '[]'::jsonb,
-  featured boolean default false,
-  createdAt timestamptz default now(),
-  updatedAt timestamptz default now()
-);
+1. Open the Supabase SQL editor for your project.
+2. Paste the contents of [`supabase/schema.sql`](supabase/schema.sql) and run it once.
+   - The script creates the `kittens` and `bids` tables, adds simple RLS policies that mirror the demo behaviour, and enables UUID generation for bids.
+   - Adjust the policies before production if you need stricter access control.
 
-create table public.bids (
-  id uuid primary key default gen_random_uuid(),
-  kittenId text references public.kittens(id) on delete cascade,
-  bidderName text not null,
-  amount numeric not null,
-  message text,
-  placedAt timestamptz default now()
-);
-```
-
-> Ensure your row-level security policies allow the anon key to `select` kittens/bids and that authenticated breeder users can `insert`/`update`/`delete` as required.
-
-Without Supabase keys the app falls back to the bundled demo kittens (stored in-memory).
+If the tables are missing, the app automatically falls back to the bundled demo kittens and surfaces a warning in the UI.
 
 ## Stripe Payment Links
 
