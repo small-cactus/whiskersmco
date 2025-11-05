@@ -9,10 +9,7 @@ import {
 } from 'react';
 import { seedKittens } from '../data/seed';
 import type { Bid, Kitten, KittenDraft, KittenStatus } from '../types';
-import {
-  getSupabaseClient,
-  isSupabaseConfigured,
-} from '../lib/supabaseClient';
+import { getSupabaseClient } from '../lib/supabaseClient';
 
 const nowIso = () => new Date().toISOString();
 
@@ -130,8 +127,39 @@ interface KittenContextValue {
 const KittenContext = createContext<KittenContextValue | undefined>(undefined);
 
 export function KittenProvider({ children }: { children: ReactNode }) {
-  const supabase = getSupabaseClient();
-  const usingSupabase = isSupabaseConfigured() && Boolean(supabase);
+  const [supabase, setSupabase] = useState(() => getSupabaseClient());
+  const usingSupabase = Boolean(supabase);
+
+  useEffect(() => {
+    if (supabase) return;
+    if (typeof window === 'undefined') return;
+
+    let attempts = 0;
+    let active = true;
+
+    const tryConnect = () => {
+      const next = getSupabaseClient();
+      if (next && active) {
+        setSupabase(next);
+        return true;
+      }
+      return false;
+    };
+
+    if (tryConnect()) return;
+
+    const intervalId = window.setInterval(() => {
+      attempts += 1;
+      if (tryConnect() || attempts >= 6) {
+        window.clearInterval(intervalId);
+      }
+    }, 500);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [supabase]);
 
   const [kittens, setKittens] = useState<Kitten[]>([]);
   const [loading, setLoading] = useState(true);
