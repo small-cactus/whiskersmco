@@ -1,3 +1,9 @@
+:root {
+  --surface-radius: clamp(24px, 4vw, 34px);
+  --surface-border: 1.5px solid rgba(220, 177, 165, 0.65);
+  --surface-shadow: 0 26px 48px rgba(61, 33, 36, 0.08);
+}
+
 .app-shell {
   max-width: 1180px;
   margin: 0 auto;
@@ -15,10 +21,10 @@
 
 .app-header {
   background: #ffffff;
-  border-radius: clamp(24px, 4vw, 32px);
+  border-radius: var(--surface-radius);
   padding: clamp(1.2rem, 3vw, 2.4rem);
-  border: 1.5px solid rgba(220, 177, 165, 0.7);
-  box-shadow: 0 22px 40px rgba(61, 33, 36, 0.08);
+  border: var(--surface-border);
+  box-shadow: var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
@@ -277,13 +283,14 @@
 .marketplace__hero {
   position: relative;
   background: #ffffff;
-  border-radius: clamp(24px, 4vw, 34px);
+  border-radius: var(--surface-radius);
   padding: clamp(1.8rem, 5vw, 3.4rem);
-  border: 1.5px solid rgba(220, 177, 165, 0.65);
-  box-shadow: 0 26px 48px rgba(61, 33, 36, 0.08);
+  border: var(--surface-border);
+  box-shadow: var(--surface-shadow);
   display: grid;
   gap: clamp(1.4rem, 3vw, 2.8rem);
   overflow: hidden;
+  width: 100%;
 }
 
 .marketplace__hero-figure {
@@ -527,9 +534,28 @@
 }
 
 .marketplace__section {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 2vw, 1.4rem);
+  background: #ffffff;
+  border-radius: var(--surface-radius);
+  padding: clamp(1.8rem, 5vw, 3.4rem);
+  border: var(--surface-border);
+  box-shadow: var(--surface-shadow);
+  width: 100%;
+}
+
+.marketplace__section[data-simple] {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  display: contents;
+}
+
+.marketplace__section[data-simple] .marketplace__section-head {
+  margin-bottom: clamp(0.6rem, 2vw, 1.2rem);
 }
 
 .marketplace__section-head {
@@ -555,7 +581,11 @@
   display: grid;
   gap: clamp(0.8rem, 2vw, 1.4rem);
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 0 clamp(0.8rem, 3vw, 1.6rem);
+  width: 100%;
+}
+
+.marketplace__section[data-simple] .kitten-list {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (max-width: 360px) {
@@ -568,17 +598,23 @@
   .kitten-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .marketplace__section[data-simple] .kitten-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .kitten-card {
-  background: var(--surface);
-  border-radius: clamp(16px, 2.4vw, 22px);
-  padding: clamp(0.75rem, 2vw, 1.1rem);
+  --card-radius: clamp(22px, 3vw, 30px);
+  --card-padding: clamp(0.85rem, 2.4vw, 1.2rem);
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 0.6rem;
-  border: 1.5px solid rgba(220, 177, 165, 0.6);
-  box-shadow: 0 18px 32px rgba(61, 33, 36, 0.08);
+  border: var(--surface-border);
+  box-shadow: var(--surface-shadow);
   position: relative;
   overflow: hidden;
   min-height: 100%;
@@ -599,7 +635,7 @@
   border: none;
   padding: 0;
   background: none;
-  border-radius: clamp(14px, 2.5vw, 18px);
+  border-radius: calc(var(--card-radius) - var(--card-padding));
   overflow: hidden;
   position: relative;
   aspect-ratio: 3 / 2;
@@ -610,6 +646,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  border-radius: inherit;
 }
 
 .kitten-card__status {
@@ -748,10 +786,10 @@
 }
 
 .kitten-placeholder {
-  background: rgba(255, 255, 255, 0.72);
-  border-radius: clamp(18px, 3vw, 24px);
-  border: 1.5px dashed rgba(196, 135, 118, 0.8);
-  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: clamp(22px, 3vw, 30px);
+  border: 1.5px dashed rgba(196, 135, 118, 0.75);
+  padding: clamp(1rem, 3vw, 1.4rem);
   font-size: 0.95rem;
   color: var(--text-muted);
   box-shadow: var(--shadow-inner);
@@ -759,15 +797,16 @@
 
 .marketplace__journey {
   background: #ffffff;
-  border-radius: clamp(24px, 4vw, 32px);
-  padding: clamp(1.4rem, 4vw, 2.6rem);
-  border: 1.5px solid rgba(220, 177, 165, 0.6);
-  box-shadow: 0 24px 42px rgba(61, 33, 36, 0.07);
+  border-radius: var(--surface-radius);
+  padding: clamp(1.8rem, 5vw, 3.4rem);
+  border: var(--surface-border);
+  box-shadow: var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 2.6vw, 1.6rem);
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 
 .marketplace__journey::after {
@@ -849,14 +888,6 @@
   justify-content: center;
   align-items: flex-end;
   z-index: 30;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease-out;
-}
-
-.kitten-sheet.is-visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .kitten-sheet__backdrop {
@@ -864,12 +895,10 @@
   inset: 0;
   background: rgba(70, 50, 51, 0.45);
   backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity 0.3s ease-out;
-}
-
-.kitten-sheet.is-visible .kitten-sheet__backdrop {
-  opacity: 1;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
 }
 
 .kitten-sheet__panel {
@@ -886,13 +915,7 @@
   gap: clamp(1rem, 2vw, 1.6rem);
   border: 1.5px solid rgba(220, 177, 165, 0.6);
   box-shadow: 0 -18px 40px rgba(70, 50, 51, 0.22);
-  transform: translateY(32px);
-  transition: transform 0.36s cubic-bezier(0.18, 0.89, 0.32, 1.12);
   will-change: transform;
-}
-
-.kitten-sheet.is-visible .kitten-sheet__panel {
-  transform: translateY(0);
 }
 
 .kitten-sheet__header {
@@ -910,15 +933,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .kitten-sheet {
-    transition: none;
   }
 
   .kitten-sheet__backdrop {
-    transition: none;
   }
 
   .kitten-sheet__panel {
-    transition: none;
     transform: none;
   }
 }
@@ -1654,14 +1674,15 @@
   }
 
   .kitten-card {
-    padding: 0.75rem;
+    --card-radius: clamp(20px, 5vw, 26px);
+    --card-padding: clamp(0.7rem, 4vw, 0.9rem);
+    padding: var(--card-padding);
     gap: 0.55rem;
     grid-template-rows: auto auto;
   }
 
   .kitten-card__media {
     aspect-ratio: 4 / 3;
-    border-radius: 16px;
   }
 
   .kitten-card__status {

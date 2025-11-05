@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import imageCompression from 'browser-image-compression';
 import {
   KittenDraft,
   KittenStatus,
@@ -29,7 +30,8 @@ const defaultDraft = (): KittenDraft => ({
 
 const statusOrder: KittenStatus[] = ['available', 'reserved', 'sold'];
 
-const MAX_IMAGE_DIMENSION = 1280;
+const MAX_IMAGE_DIMENSION = 1024;
+const TARGET_MAX_SIZE_MB = 0.18;
 
 async function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -49,6 +51,23 @@ async function fileToOptimizedDataUrl(file: File): Promise<string> {
 
   if (typeof window === 'undefined') {
     return originalDataUrl;
+  }
+
+  try {
+    const compressed = await imageCompression(file, {
+      maxSizeMB: TARGET_MAX_SIZE_MB,
+      maxWidthOrHeight: MAX_IMAGE_DIMENSION,
+      initialQuality: 0.45,
+      fileType: 'image/webp',
+      useWebWorker: true,
+    });
+
+    const compressedDataUrl = await imageCompression.getDataUrlFromFile(compressed);
+    if (compressedDataUrl && compressedDataUrl.length <= originalDataUrl.length) {
+      return compressedDataUrl;
+    }
+  } catch {
+    // fall back to canvas downscaling below
   }
 
   const imageElement = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -81,12 +100,12 @@ async function fileToOptimizedDataUrl(file: File): Promise<string> {
   context.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
 
   try {
-    const webp = canvas.toDataURL('image/webp', 0.72);
+    const webp = canvas.toDataURL('image/webp', 0.58);
     if (webp && webp.length < originalDataUrl.length) {
       return webp;
     }
 
-    const jpeg = canvas.toDataURL('image/jpeg', 0.72);
+    const jpeg = canvas.toDataURL('image/jpeg', 0.58);
     if (jpeg && jpeg.length < originalDataUrl.length) {
       return jpeg;
     }
@@ -161,7 +180,7 @@ export function AdminDashboard() {
         gallery: [...previous.gallery, ...images],
         heroImage: previous.heroImage || images[0] || previous.heroImage,
       }));
-    } catch (uploadError) {
+    } catch {
       setError('Unable to read image file(s). Try again.');
     } finally {
       setIsUploading(false);

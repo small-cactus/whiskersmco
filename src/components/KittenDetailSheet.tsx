@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion, type Transition, useReducedMotion } from 'framer-motion';
 import type {
   CheckoutActionType,
   Kitten,
@@ -39,7 +40,6 @@ export function KittenDetailSheet({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmittingBid, setIsSubmittingBid] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setBidderName('');
@@ -50,18 +50,42 @@ export function KittenDetailSheet({
     setError(null);
   }, [kitten.id]);
 
-  useEffect(() => {
-    setIsVisible(false);
-    const frame = window.requestAnimationFrame(() => setIsVisible(true));
-    return () => window.cancelAnimationFrame(frame);
-  }, [kitten.id]);
-
   const highestBid = useMemo(
     () => (kitten.bids.length ? kitten.bids[0] : null),
     [kitten.bids],
   );
 
   const ageWeeks = calculateAgeInWeeks(kitten.birthdate);
+
+  const prefersReducedMotion = useReducedMotion();
+
+  const sheetTransition: Transition | undefined = prefersReducedMotion
+    ? { duration: 0 }
+    : undefined;
+
+  const backdropTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.28 };
+
+  const activePanelTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : panelTransition;
+
+  const galleryImages = useMemo(() => {
+    const extras = (kitten.gallery ?? []).filter(Boolean);
+    if (!extras.length) {
+      return [];
+    }
+    const unique = new Set<string>();
+    const ordered = kitten.heroImage
+      ? [kitten.heroImage, ...extras]
+      : [...extras];
+    return ordered.filter((src) => {
+      if (unique.has(src)) return false;
+      unique.add(src);
+      return true;
+    });
+  }, [kitten.gallery, kitten.heroImage]);
 
   const handleBidSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -102,13 +126,30 @@ export function KittenDetailSheet({
   const isSold = kitten.status === 'sold';
 
   return (
-    <div
-      className={`kitten-sheet${isVisible ? ' is-visible' : ''}`}
+    <motion.div
+      className="kitten-sheet"
       role="dialog"
       aria-modal="true"
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={sheetVariants}
+      transition={sheetTransition}
     >
-      <div className="kitten-sheet__backdrop" onClick={onClose} />
-      <section className="kitten-sheet__panel">
+      <motion.button
+        type="button"
+        className="kitten-sheet__backdrop"
+        onClick={onClose}
+        variants={backdropVariants}
+        transition={backdropTransition}
+        aria-label="Close kitten details"
+        tabIndex={-1}
+      />
+      <motion.section
+        className="kitten-sheet__panel"
+        variants={panelVariants}
+        transition={activePanelTransition}
+      >
         <header className="kitten-sheet__header">
           <button
             type="button"
@@ -134,16 +175,18 @@ export function KittenDetailSheet({
           </div>
         </header>
 
-        <div className="kitten-sheet__gallery" aria-label="More photos">
-          {[kitten.heroImage, ...kitten.gallery].map((imageSrc, index) => (
-            <img
-              key={`${kitten.id}-gallery-${index}`}
-              src={imageSrc}
-              alt={`${kitten.name} photo ${index + 1}`}
-              loading={index === 0 ? 'eager' : 'lazy'}
-            />
-          ))}
-        </div>
+        {galleryImages.length > 0 ? (
+          <div className="kitten-sheet__gallery" aria-label="More photos">
+            {galleryImages.map((imageSrc, index) => (
+              <img
+                key={`${kitten.id}-gallery-${index}`}
+                src={imageSrc}
+                alt={`${kitten.name} photo ${index + 1}`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
+            ))}
+          </div>
+        ) : null}
 
         <section className="kitten-sheet__overview">
           <div>
@@ -280,7 +323,29 @@ export function KittenDetailSheet({
             Buy now {formatCurrency(kitten.price)}
           </button>
         </footer>
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }
+
+const sheetVariants = {
+  hidden: { opacity: 1, pointerEvents: 'none' as const },
+  visible: { opacity: 1, pointerEvents: 'auto' as const },
+};
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const panelVariants = {
+  hidden: { y: '100%' },
+  visible: { y: '0%' },
+};
+
+const panelTransition: Transition = {
+  type: 'spring',
+  stiffness: 420,
+  damping: 36,
+  mass: 0.75,
+};

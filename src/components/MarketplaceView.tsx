@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { KittenCard } from './KittenCard';
 import kittensInBasket from '../assets/kittens_in_basket.png';
 import { KittenDetailSheet } from './KittenDetailSheet';
@@ -260,14 +261,17 @@ export function MarketplaceView() {
         </p>
       </section>
 
-      {selected ? (
-        <KittenDetailSheet
-          kitten={selected}
-          onClose={() => setSelected(null)}
-          onCheckout={handleCheckout}
-          onAddBid={handleAddBid}
-        />
-      ) : null}
+      <AnimatePresence initial={false} mode="wait">
+        {selected ? (
+          <KittenDetailSheet
+            key={selected.id}
+            kitten={selected}
+            onClose={() => setSelected(null)}
+            onCheckout={handleCheckout}
+            onAddBid={handleAddBid}
+          />
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
