@@ -86,7 +86,7 @@ export function MarketplaceView() {
 
   const syncMessage = usingSupabase
     ? 'Listings update instantly when saved in the breeder dashboard.'
-    : 'Connect Supabase to keep listings synced across devices.';
+    : 'Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your hosting environment to sync listings across devices.';
 
   return (
     <div className="marketplace" id="available-kittens">

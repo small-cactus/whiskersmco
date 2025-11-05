@@ -65,6 +65,7 @@ interface SupabaseConfig {
 
 let cachedConfig: SupabaseConfig | null = null;
 let client: SupabaseClient | null = null;
+let warnedMissing = false;
 
 const resolveConfig = (): SupabaseConfig | null => {
   const url =
@@ -82,7 +83,21 @@ const resolveConfig = (): SupabaseConfig | null => {
       'SUPABASE_ANON_KEY',
     ]) ?? '';
 
-  if (!url || !anonKey) return null;
+  if (!url || !anonKey) {
+    if (!warnedMissing && typeof console !== 'undefined') {
+      const missing: string[] = [];
+      if (!url) missing.push('VITE_SUPABASE_URL');
+      if (!anonKey) missing.push('VITE_SUPABASE_ANON_KEY');
+      console.warn(
+        `[Supabase] Missing environment variable${missing.length > 1 ? 's' : ''}: ${missing.join(
+          ', ',
+        )}. Set them in your Vercel project (Environment Variables → name starting with VITE_).`,
+      );
+    }
+    warnedMissing = true;
+    return null;
+  }
+  warnedMissing = false;
   return { url, anonKey };
 };
 

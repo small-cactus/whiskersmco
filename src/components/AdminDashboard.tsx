@@ -237,7 +237,10 @@ export function AdminDashboard() {
           without emailing links.
         </p>
         <p className="admin__sync-status">
-          Sync status: {usingSupabase ? 'Connected to Supabase' : 'Local demo mode (set SUPABASE_URL & SUPABASE_ANON_KEY)'}
+          Sync status:{' '}
+          {usingSupabase
+            ? 'Connected to Supabase'
+            : 'Local demo mode (set VITE_SUPABASE_URL & VITE_SUPABASE_ANON_KEY)'}
           {loading ? ' · Loading…' : ''}
         </p>
       </header>
