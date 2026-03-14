@@ -1,1 +1,0 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/admindashboard.tsx","./src/components/kittencard.tsx","./src/components/kittendetailsheet.tsx","./src/components/marketplaceview.tsx","./src/context/kittencontext.tsx","./src/data/seed.ts","./src/lib/supabaseclient.ts","./src/utils/format.ts"],"version":"5.9.3"}
